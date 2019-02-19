@@ -4037,7 +4037,6 @@ int main(int argc, char **argv) {
     spt_init(argc, argv);
 #endif
     
-
     setlocale(LC_COLLATE,"");//配置字符
     tzset(); /* Populates 'timezone' global. 获取全局时区*/
     zmalloc_set_oom_handler(redisOutOfMemoryHandler);//设置内存分配失败时候的日志回调函数
@@ -4072,6 +4071,7 @@ int main(int argc, char **argv) {
     /* Check if we need to start in redis-check-rdb/aof mode. We just execute
      * the program main. However the program is part of the Redis executable
      * so that we can easily execute an RDB check on loading errors. */
+    //检查是否开启redis的rdb/aof模式,我们只执行主程序,然而，该程序是Redis可执行文件的一部分,这样我们就可以很容易地对加载错误执行RDB检查。
     if (strstr(argv[0],"redis-check-rdb") != NULL)
         redis_check_rdb_main(argc,argv,NULL);
     else if (strstr(argv[0],"redis-check-aof") != NULL)
