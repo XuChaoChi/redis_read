@@ -214,7 +214,7 @@ void sdsclear(sds s) {
  *
  * Note: this does not change the *length* of the sds string as returned
  * by sdslen(), but only the free buffer space we have. */
-//扩容用的,不改变使用长度
+//扩容用的,在末尾添加未使用的空间,不改变使用长度,调用sdslen()还是返回原来的长度
 sds sdsMakeRoomFor(sds s, size_t addlen) {
     void *sh, *newsh;
     size_t avail = sdsavail(s);
@@ -394,10 +394,13 @@ void sdsIncrLen(sds s, ssize_t incr) {
  *
  * if the specified length is smaller than the current length, no operation
  * is performed. */
+//增加sds的长度,增加部分置0
+//如果增加长度小于原来长度啥都不做
 sds sdsgrowzero(sds s, size_t len) {
     size_t curlen = sdslen(s);
 
     if (len <= curlen) return s;
+    //扩容
     s = sdsMakeRoomFor(s,len-curlen);
     if (s == NULL) return NULL;
 
@@ -412,6 +415,8 @@ sds sdsgrowzero(sds s, size_t len) {
  *
  * After the call, the passed sds string is no longer valid and all the
  * references must be substituted with the new pointer returned by the call. */
+//添加规定长度的字符串在sds后面
+//调用后再使用的话要用返回的指针,原来传进去s已经不能用了(sdsMakeRoomFor会重新分配)
 sds sdscatlen(sds s, const void *t, size_t len) {
     size_t curlen = sdslen(s);
 
