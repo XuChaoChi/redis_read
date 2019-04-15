@@ -46,7 +46,7 @@ typedef char *sds;//sds串
  * However is here to document the layout of type 5 SDS strings. */
 //定义这些结构体是为了更加合理的使用内存
 struct __attribute__ ((__packed__)) sdshdr5 {
-    unsigned char flags; /* 3 lsb of type, and 5 msb of string length */ //低3位hader存储类型 ,高5位代表字符串场地
+    unsigned char flags; /* 3 lsb of type, and 5 msb of string length */ //低3位hader存储类型 ,高5位代表字符串场长度
     char buf[];
 };
 struct __attribute__ ((__packed__)) sdshdr8 {
@@ -82,7 +82,7 @@ struct __attribute__ ((__packed__)) sdshdr64 {
 #define SDS_TYPE_MASK 7//和SDS_TYPE与求类型
 #define SDS_TYPE_BITS 3//类型占用3位
 #define SDS_HDR_VAR(T,s) struct sdshdr##T *sh = (void*)((s)-(sizeof(struct sdshdr##T)));//获取头部指针
-#define SDS_HDR(T,s) ((struct sdshdr##T *)((s)-(sizeof(struct sdshdr##T))))//
+#define SDS_HDR(T,s) ((struct sdshdr##T *)((s)-(sizeof(struct sdshdr##T))))//获取
 #define SDS_TYPE_5_LEN(f) ((f)>>SDS_TYPE_BITS)//右移3位求sdshdr5的长度
 
 //获取sds的使用长度
