@@ -33,44 +33,47 @@
 
 /* Node, List, and Iterator are the only data structures used currently. */
 
+//双向链表节点
 typedef struct listNode {
     struct listNode *prev;
     struct listNode *next;
     void *value;
 } listNode;
 
+//迭代器
 typedef struct listIter {
     listNode *next;
-    int direction;
+    int direction;//迭代器访问方向
 } listIter;
 
 typedef struct list {
-    listNode *head;
-    listNode *tail;
-    void *(*dup)(void *ptr);
-    void (*free)(void *ptr);
-    int (*match)(void *ptr, void *key);
-    unsigned long len;
+    listNode *head;//头
+    listNode *tail;//尾巴
+    //针对不同类型值的一下函数指针
+    void *(*dup)(void *ptr);//复制函数指针
+    void (*free)(void *ptr);//释放函数指针
+    int (*match)(void *ptr, void *key);//对比函数指针
+    unsigned long len;//链表长度
 } list;
 
 /* Functions implemented as macros */
-#define listLength(l) ((l)->len)
-#define listFirst(l) ((l)->head)
-#define listLast(l) ((l)->tail)
-#define listPrevNode(n) ((n)->prev)
-#define listNextNode(n) ((n)->next)
-#define listNodeValue(n) ((n)->value)
+#define listLength(l) ((l)->len) //获取长度
+#define listFirst(l) ((l)->head) //获取头
+#define listLast(l) ((l)->tail) //获取尾
+#define listPrevNode(n) ((n)->prev) //获取前置节点
+#define listNextNode(n) ((n)->next) //获取后置节点
+#define listNodeValue(n) ((n)->value) //获取值
 
-#define listSetDupMethod(l,m) ((l)->dup = (m))
-#define listSetFreeMethod(l,m) ((l)->free = (m))
-#define listSetMatchMethod(l,m) ((l)->match = (m))
+#define listSetDupMethod(l,m) ((l)->dup = (m))  //设置复制函数指针
+#define listSetFreeMethod(l,m) ((l)->free = (m)) //设置释放函数指针
+#define listSetMatchMethod(l,m) ((l)->match = (m)) //设置对比函数只恨
 
-#define listGetDupMethod(l) ((l)->dup)
-#define listGetFree(l) ((l)->free)
-#define listGetMatchMethod(l) ((l)->match)
+#define listGetDupMethod(l) ((l)->dup) //获取复制函数指针
+#define listGetFree(l) ((l)->free)  //获取释放函数指针
+#define listGetMatchMethod(l) ((l)->match) //获取对比函数指针
 
 /* Prototypes */
-list *listCreate(void);
+list *listCreate(void); 
 void listRelease(list *list);
 void listEmpty(list *list);
 list *listAddNodeHead(list *list, void *value);
@@ -89,6 +92,7 @@ void listRotate(list *list);
 void listJoin(list *l, list *o);
 
 /* Directions for iterators */
+//迭代器的指向
 #define AL_START_HEAD 0
 #define AL_START_TAIL 1
 
