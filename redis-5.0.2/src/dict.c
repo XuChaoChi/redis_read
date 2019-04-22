@@ -99,6 +99,7 @@ uint64_t dictGenCaseHashFunction(const unsigned char *buf, int len) {
 
 /* Reset a hash table already initialized with ht_init().
  * NOTE: This function should only be called by ht_destroy(). */
+//重置hash表
 static void _dictReset(dictht *ht)
 {
     ht->table = NULL;
@@ -108,6 +109,7 @@ static void _dictReset(dictht *ht)
 }
 
 /* Create a new hash table */
+//创建一个新的hash表
 dict *dictCreate(dictType *type,
         void *privDataPtr)
 {
@@ -118,6 +120,7 @@ dict *dictCreate(dictType *type,
 }
 
 /* Initialize the hash table */
+//初始化hash表
 int _dictInit(dict *d, dictType *type,
         void *privDataPtr)
 {
@@ -144,33 +147,39 @@ int dictResize(dict *d)
 }
 
 /* Expand or create the hash table */
+//扩展或者创建hash表
 int dictExpand(dict *d, unsigned long size)
 {
     /* the size is invalid if it is smaller than the number of
      * elements already inside the hash table */
+    //如果是正在rehash或者h拓展大小小于使用大小返回DICT_ERR
     if (dictIsRehashing(d) || d->ht[0].used > size)
         return DICT_ERR;
 
     dictht n; /* the new hash table */
+    //按2的次扩容
     unsigned long realsize = _dictNextPower(size);
 
     /* Rehashing to the same table size is not useful. */
+    //和以前一样的大小直接返回
     if (realsize == d->ht[0].size) return DICT_ERR;
 
     /* Allocate the new hash table and initialize all pointers to NULL */
     n.size = realsize;
     n.sizemask = realsize-1;
-    n.table = zcalloc(realsize*sizeof(dictEntry*));
+    n.table = zcalloc(realsize*sizeof(dictEntry*));//分配内存
     n.used = 0;
 
     /* Is this the first initialization? If so it's not really a rehashing
      * we just set the first hash table so that it can accept keys. */
+    //判断是否第一次初始化,如果是的话只要给第一个hash表赋值就行了
     if (d->ht[0].table == NULL) {
         d->ht[0] = n;
         return DICT_OK;
     }
 
     /* Prepare a second hash table for incremental rehashing */
+    //第二张表准备rehash
     d->ht[1] = n;
     d->rehashidx = 0;
     return DICT_OK;
@@ -199,30 +208,31 @@ int dictRehash(dict *d, int n) {
             d->rehashidx++;
             if (--empty_visits == 0) return 1;
         }
-        de = d->ht[0].table[d->rehashidx];
+        de = d->ht[0].table[d->rehashidx];//找到reshah的位置的键
         /* Move all the keys in this bucket from the old to the new hash HT */
+        //将整个bucket移动到新的hash表中
         while(de) {
             uint64_t h;
 
             nextde = de->next;
             /* Get the index in the new hash table */
-            h = dictHashKey(d, de->key) & d->ht[1].sizemask;
-            de->next = d->ht[1].table[h];
+            h = dictHashKey(d, de->key) & d->ht[1].sizemask;//获取键新的位置
+            de->next = d->ht[1].table[h];//按照原始位置迁移
             d->ht[1].table[h] = de;
             d->ht[0].used--;
             d->ht[1].used++;
-            de = nextde;
+            de = nextde;//开始链(bucket)中的下一个元素
         }
         d->ht[0].table[d->rehashidx] = NULL;
         d->rehashidx++;
     }
 
     /* Check if we already rehashed the whole table... */
-    if (d->ht[0].used == 0) {
-        zfree(d->ht[0].table);
-        d->ht[0] = d->ht[1];
-        _dictReset(&d->ht[1]);
-        d->rehashidx = -1;
+    if (d->ht[0].used == 0) {//判断rehash是否完成
+        zfree(d->ht[0].table);//释放表0
+        d->ht[0] = d->ht[1];//表1赋值给表0
+        _dictReset(&d->ht[1]);//初始化表1
+        d->rehashidx = -1;//标记rehash结束
         return 0;
     }
 
@@ -262,6 +272,7 @@ static void _dictRehashStep(dict *d) {
 }
 
 /* Add an element to the target hash table */
+//添加键值到字典
 int dictAdd(dict *d, void *key, void *val)
 {
     dictEntry *entry = dictAddRaw(d,key,NULL);
@@ -295,7 +306,7 @@ dictEntry *dictAddRaw(dict *d, void *key, dictEntry **existing)
     dictEntry *entry;
     dictht *ht;
 
-    if (dictIsRehashing(d)) _dictRehashStep(d);
+    if (dictIsRehashing(d)) _dictRehashStep(d);//进入rehash过程
 
     /* Get the index of the new element, or -1 if
      * the element already exists. */
@@ -941,11 +952,12 @@ static int _dictExpandIfNeeded(dict *d)
 }
 
 /* Our hash table capability is a power of two */
+//hash表的扩容是按2的指数
 static unsigned long _dictNextPower(unsigned long size)
 {
     unsigned long i = DICT_HT_INITIAL_SIZE;
-
-    if (size >= LONG_MAX) return LONG_MAX + 1LU;
+    if (size >= LONG_MAX) return LONG_MAX + 1LU;\
+    //每次*2
     while(1) {
         if (i >= size)
             return i;
