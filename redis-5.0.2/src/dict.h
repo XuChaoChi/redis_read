@@ -159,9 +159,9 @@ typedef void (dictScanBucketFunction)(void *privdata, dictEntry **bucketref);
 #define dictIsRehashing(d) ((d)->rehashidx != -1)//判断是否在rehash中
 
 /* API */
-dict *dictCreate(dictType *type, void *privDataPtr);
-int dictExpand(dict *d, unsigned long size);
-int dictAdd(dict *d, void *key, void *val);
+dict *dictCreate(dictType *type, void *privDataPtr);//创建一个新的hash表
+int dictExpand(dict *d, unsigned long size);//扩展或者创建hash表
+int dictAdd(dict *d, void *key, void *val);//添加键值到字典
 dictEntry *dictAddRaw(dict *d, void *key, dictEntry **existing);
 dictEntry *dictAddOrFind(dict *d, void *key);
 int dictReplace(dict *d, void *key, void *val);
